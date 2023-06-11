@@ -1,0 +1,70 @@
+#!/usr/bin/with-contenv bash
+
+cat <<EOF
+---
+Starting linuxserver:swag - ENV based automatic enabling of subdomain proxy-configs
+---
+EOF
+
+# Display variables for troubleshooting
+echo -e "Variables set:\\n\
+AUTO_HOMEASSISTANT=${AUTO_HOMEASSISTANT}\\n\
+AUTO_HOMEASSISTANT_ENDPOINT=${AUTO_HOMEASSISTANT_ENDPOINT}\\n\
+AUTO_NEXTCLOUD=${AUTO_NEXTCLOUD}\\n\
+AUTO_NEXTCLOUD_ENDPOINT=${AUTO_NEXTCLOUD_ENDPOINT}\\n\
+AUTO_ZIGBEE2MQTT=${AUTO_ZIGBEE2MQTT}\\n\
+AUTO_ZIGBEE2MQTT_ENDPOINT=${AUTO_ZIGBEE2MQTT_ENDPOINT}\\n\
+AUTO_ZIGBEE2MQTT_PORT=${AUTO_ZIGBEE2MQTT_PORT}\\n"
+
+# Homeassistant
+if [ "${AUTO_HOMEASSISTANT}" == "true" ]; then
+    HASS_PATH_CONFIG_SAMPLE=/config/nginx/proxy-confs/homeassistant.subdomain.conf.sample
+    HASS_PATH_CONFIG=/config/nginx/proxy-confs/homeassistant.subdomain.conf
+    cp "$HASS_PATH_CONFIG_SAMPLE" "$HASS_PATH_CONFIG"
+
+    echo "Auto enabled Homeassistant proxy-config."
+
+    # adjust endpoint if needed
+    if [ ! -z "${AUTO_HOMEASSISTANT_ENDPOINT}" ]; then
+        sed -i "s/set \$upstream_app.*/set \$upstream_app $HOMEASSISTANT_ENDPOINT;/" "$HASS_PATH_CONFIG"
+        echo "Updated the Homeassistant endpoint.."
+    fi
+fi
+
+# Nextcloud
+if [ "${AUTO_NEXTCLOUD}" == "true" ]; then
+    NEXTCLOUD_PATH_CONFIG_SAMPLE=/config/nginx/proxy-confs/nextcloud.subdomain.conf.sample
+    NEXTCLOUD_PATH_CONFIG=/config/nginx/proxy-confs/nextcloud.subdomain.conf
+    cp "$NEXTCLOUD_PATH_CONFIG_SAMPLE" "$NEXTCLOUD_PATH_CONFIG"
+
+    echo "Auto enabled Nextcloud proxy-config."
+
+    # adjust endpoint if needed
+    if [ ! -z "${AUTO_NEXTCLOUD_ENDPOINT}" ]; then
+        sed -i "s/set \$upstream_app.*/set \$upstream_app $AUTO_NEXTCLOUD_ENDPOINT;/" "$NEXTCLOUD_PATH_CONFIG"
+        echo "Updated the Nextcloud endpoint.."
+    fi
+fi
+
+# Zigbee2Mqtt
+if [ "${AUTO_ZIGBEE2MQTT}" == "true" ]; then
+    ZIGBEE2MQTT_PATH_CONFIG_SAMPLE=/config/nginx/proxy-confs/zigbee2mqtt.subdomain.conf.sample
+    ZIGBEE2MQTT_PATH_CONFIG=/config/nginx/proxy-confs/zigbee2mqtt.subdomain.conf
+    cp "$ZIGBEE2MQTT_PATH_CONFIG_SAMPLE" "$ZIGBEE2MQTT_PATH_CONFIG"
+
+    echo "Auto enabled Nextcloud proxy-config."
+
+    # adjust endpoint if needed
+    if [ ! -z "${AUTO_ZIGBEE2MQTT_ENDPOINT}" ]; then
+        sed -i "s/set \$upstream_app.*/set \$upstream_app $AUTO_ZIGBEE2MQTT_ENDPOINT;/" "$ZIGBEE2MQTT_PATH_CONFIG"
+        echo "Updated the Zigbee2Mqtt endpoint.."
+    fi
+
+    # adjust port if needed
+    if [ ! -z "${AUTO_ZIGBEE2MQTT_PORT}" ]; then
+        sed -i "s/set \$upstream_port.*/set \$upstream_port $AUTO_ZIGBEE2MQTT_PORT;/" "$ZIGBEE2MQTT_PATH_CONFIG"
+        echo "Updated the Zigbee2Mqtt endpoint.."
+    fi
+fi
+
+echo "Done! homeassistant proxy-config configuration succeeded."
