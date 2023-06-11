@@ -49,7 +49,7 @@ if [ "${AUTO_NEXTCLOUD}" == "true" ]; then
 
     # add hsts tag
     if [ "${AUTO_NEXTCLOUD_HSTS}" == "true" ]; then
-        HSTS_TAG="add_header Strict-Transport-Security \"max-age=15552000; includeSubDomains\""
+        HSTS_TAG="\tadd_header Strict-Transport-Security \"max-age=15552000; includeSubDomains\";"
         sed -i "/server_name nextcloud.*;/a$HSTS_TAG" "$NEXTCLOUD_PATH_CONFIG"
         echo "Added HSTS tag to nginx proxy config.."
     fi
@@ -79,8 +79,12 @@ fi
 # No robots tag
 if [ "${AUTO_NO_ROBOTS}" == "true" ]; then
     DEFAULT_PATH_CONFIG=/config/nginx/site-confs/default.conf
-    NO_ROBOTS_TAG="add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";"
-    sed -i "/server_name _;/a$NO_ROBOTS_TAG" "$DEFAULT_PATH_CONFIG"
+    NO_ROBOTS_TAG="\tadd_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";"
+
+    if ! grep -qF "$NO_ROBOTS_TAG" "$DEFAULT_PATH_CONFIG"; then
+        sed -i "/server_name _;/a$NO_ROBOTS_TAG" "$DEFAULT_PATH_CONFIG"        
+    fi
+        
     echo "Added no robots tag to all sites.."
 fi
 
