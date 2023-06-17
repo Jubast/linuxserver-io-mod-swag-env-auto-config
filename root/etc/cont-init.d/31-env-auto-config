@@ -9,14 +9,9 @@ EOF
 # Display variables for troubleshooting
 echo -e "Variables set:\\n\
 AUTO_HOMEASSISTANT=${AUTO_HOMEASSISTANT}\\n\
-AUTO_HOMEASSISTANT_ENDPOINT=${AUTO_HOMEASSISTANT_ENDPOINT}\\n\
 AUTO_NEXTCLOUD=${AUTO_NEXTCLOUD}\\n\
-AUTO_NEXTCLOUD_ENDPOINT=${AUTO_NEXTCLOUD_ENDPOINT}\\n\
 AUTO_NEXTCLOUD_HSTS=${AUTO_NEXTCLOUD_HSTS}\\n\
-AUTO_ZIGBEE2MQTT=${AUTO_ZIGBEE2MQTT}\\n\
-AUTO_ZIGBEE2MQTT_ENDPOINT=${AUTO_ZIGBEE2MQTT_ENDPOINT}\\n\
-AUTO_ZIGBEE2MQTT_PORT=${AUTO_ZIGBEE2MQTT_PORT}\\n\
-AUTO_NO_ROBOTS=${AUTO_NO_ROBOTS}\\n"
+AUTO_NEXTCLOUD_NO_ROBOTS=${AUTO_NEXTCLOUD_NO_ROBOTS}\\n"
 
 # Homeassistant
 if [ "${AUTO_HOMEASSISTANT}" == "true" ]; then
@@ -49,43 +44,17 @@ if [ "${AUTO_NEXTCLOUD}" == "true" ]; then
 
     # add hsts tag
     if [ "${AUTO_NEXTCLOUD_HSTS}" == "true" ]; then
-        HSTS_TAG="        add_header Strict-Transport-Security \"max-age=15552000; includeSubDomains\";"
+        HSTS_TAG="add_header Strict-Transport-Security \"max-age=15552000; includeSubDomains\";"
         sed -i "/server_name nextcloud.*;/a$HSTS_TAG" "$NEXTCLOUD_PATH_CONFIG"
-        echo "Added HSTS tag to nginx proxy config.."
-    fi
-fi
-
-# Zigbee2Mqtt
-if [ "${AUTO_ZIGBEE2MQTT}" == "true" ]; then
-    ZIGBEE2MQTT_PATH_CONFIG_SAMPLE=/config/nginx/proxy-confs/zigbee2mqtt.subdomain.conf.sample
-    ZIGBEE2MQTT_PATH_CONFIG=/config/nginx/proxy-confs/zigbee2mqtt.subdomain.conf
-    cp "$ZIGBEE2MQTT_PATH_CONFIG_SAMPLE" "$ZIGBEE2MQTT_PATH_CONFIG"
-
-    echo "Auto enabled Zigbee2Mqtt proxy-config."
-
-    # adjust endpoint if needed
-    if [ ! -z "${AUTO_ZIGBEE2MQTT_ENDPOINT}" ]; then
-        sed -i "s/set \$upstream_app.*/set \$upstream_app $AUTO_ZIGBEE2MQTT_ENDPOINT;/" "$ZIGBEE2MQTT_PATH_CONFIG"
-        echo "Updated the Zigbee2Mqtt endpoint.."
+        echo "Added HSTS tag to nextcloud proxy-config.."
     fi
 
-    # adjust port if needed
-    if [ ! -z "${AUTO_ZIGBEE2MQTT_PORT}" ]; then
-        sed -i "s/set \$upstream_port.*/set \$upstream_port $AUTO_ZIGBEE2MQTT_PORT;/" "$ZIGBEE2MQTT_PATH_CONFIG"
-        echo "Updated the Zigbee2Mqtt port.."
+    # add hsts tag
+    if [ "${AUTO_NEXTCLOUD_NO_ROBOTS}" == "true" ]; then
+        NO_ROBOTS_TAG="add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";"
+        sed -i "/server_name nextcloud.*;/a$NO_ROBOTS_TAG" "$NEXTCLOUD_PATH_CONFIG"
+        echo "Added No Robots tag to nextcloud proxy-config.."
     fi
-fi
-
-# No robots tag
-if [ "${AUTO_NO_ROBOTS}" == "true" ]; then
-    DEFAULT_PATH_CONFIG=/config/nginx/site-confs/default.conf
-    NO_ROBOTS_TAG="        add_header X-Robots-Tag \"noindex, nofollow, nosnippet, noarchive\";"
-
-    if ! grep -qF "$NO_ROBOTS_TAG" "$DEFAULT_PATH_CONFIG"; then
-        sed -i "/server_name _;/a$NO_ROBOTS_TAG" "$DEFAULT_PATH_CONFIG"        
-    fi
-
-    echo "Added no robots tag to all sites.."
 fi
 
 echo "Done! ENV auto config succeeded."

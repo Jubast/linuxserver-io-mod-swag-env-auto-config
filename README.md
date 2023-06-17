@@ -9,18 +9,12 @@ A linuxsever/swag mod that automatically enables select proxy configs based on e
 # Supported proxy configs (more will be added when needed)
 - Homeassistant
 - Nextcloud
-- Zigbee2Mqtt
 
 # Supported Enviroment variables (more will be added when needed)
 - AUTO_HOMEASSISTANT=true
-- AUTO_HOMEASSISTANT_ENDPOINT=192.168.0.24  # override the `$upstream_app` in the homeassistant.subdomain.conf
 - AUTO_NEXTCLOUD=true
-- AUTO_NEXTCLOUD_ENDPOINT=192.168.0.24 # override the `$upstream_app` in the nextcloud.subdomain.conf
 - AUTO_NEXTCLOUD_HSTS=true # add the HSTS header in the nextcloud.subdomain.conf
-- AUTO_ZIGBEE2MQTT=true
-- AUTO_ZIGBEE2MQTT_ENDPOINT=192.168.0.24 # override the `$upstream_app` in the zigbee2mqtt.subdomain.conf
-- AUTO_ZIGBEE2MQTT_PORT=8081 # override the `$upstream_port` in the zigbee2mqtt.subdomain.conf
-- AUTO_NO_ROBOTS=true # add the X-Robots-Tag for all sites
+- AUTO_NEXTCLOUD_NO_ROBOTS=true # add the X-Robots-Tag header in the nextcloud.subdomain.conf
 
 Example:
 ```yml
@@ -36,9 +30,8 @@ services:
       ...
       - AUTO_HOMEASSISTANT=true
       - AUTO_NEXTCLOUD=true
-      - AUTO_ZIGBEE2MQTT=true
-      - AUTO_ZIGBEE2MQTT_ENDPOINT=192.168.0.24
-      - AUTO_ZIGBEE2MQTT_PORT=8081
+      - AUTO_NEXTCLOUD_HSTS=true
+      - AUTO_NEXTCLOUD_NO_ROBOTS=true
       - DOCKER_MODS=ghcr.io/jubast/linuxserver-io-mod-swag-env-auto-config
     volumes:
       - config:/config
